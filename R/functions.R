@@ -42,9 +42,11 @@ connect.access <- function() {
     )
 }
 
+
 connect.envista <- function() {
     con_params <-
-        config::get(file = "S:/SUSTAIN/Sustain-Common/SCCCS/write_gis_r/R Projects/L4/project-1-reporting-pipeline/R/config.yml", config = "envista") # credentials
+        config::get(file = "../L4/project-1-reporting-pipeline/R/config.yml",
+                    config = "envista") # credentials
     con_params$driver
     #make connection to Envista using details in the config file
     dbConnect(

@@ -18,14 +18,8 @@ pacman::p_load(char = packages)
 #   Road data ----
 
 # read the road links (painfully slow from shapefile)
-# tic()
 roads_sf <- st_read("data/ST_RoadLink.shp")
-# toc()
 
-# 
-# tic()
-# roads_sf <- st_read("C:\\Temp\\ST_RoadLink.shp")
-# toc()
 # read the monitors make.aqms.sf
 
 # read the pcm links
