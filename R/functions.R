@@ -194,6 +194,24 @@ get.no2.continuous.tbl <- function(siteid,
           return()
 }
 
+
+make.no2.continuous.tbl <- function(no2_envista_meta_tbl, get.no2.continuous.tbl){
+
+return(pmap_dfr(no2_envista_meta_tbl, get.no2.continuous.tbl))
+
+}
+
+
+
+get.annual.dt.tbl <- function(connect_access, year_meas) {
+    tbl(connect_access, "tbl_final_ba_annual") %>%
+        filter(dYear == year_meas) %>%
+        select(site_id = LocID,
+               year = dYear,
+               no2 = final_adjusted_conc) %>%
+        collect()
+}
+
 #   Wrangle AQ data ----
 
 make.monthly.contin.tbl <- function(no2_continuous_tbl, dateend){
@@ -245,7 +263,7 @@ pivot.tubes.month <- function(raw_tubes_tbl) {
             id_cols = site_id,
             names_from = month,
             values_from = no2,
-            values_fn = mean
+            values_fn = ~mean(.x, na.rm = TRUE) %>% round(2)
         ) %>%
         return()
 }
@@ -308,15 +326,6 @@ make.measurement.minmax.dates.tbl <- function(raw_tubes_tbl) {
         return()
 }
 
-get.annual.dt.tbl <- function(connect_access, year_meas) {
-    tbl(connect_access, "tbl_final_ba_annual") %>%
-        filter(dYear == year_meas) %>%
-        select(site_id = LocID,
-               year = dYear,
-               no2 = final_adjusted_conc) %>%
-        collect()
-}
-
 make.all.sites.tbl <- function(aqms_tbl,
                                site_lat_lon_tbl,
                                roads_aqms_sf,
@@ -361,7 +370,7 @@ make.all.sites.labelled <- function(all_sites_tbl){
     
     all_sites_tbl %>%
         transmute(
-            network_id = if_else(survey == "CAZ", "CAZ", "LAQM"),
+            network_id = if_else(survey != "CAZ" | is.na(survey), "LAQM", "CAZ"),
             site_id = site_id,
             site_name = location,
             local_authority = "Bristol City Council",

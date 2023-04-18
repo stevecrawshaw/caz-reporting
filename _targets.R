@@ -72,7 +72,8 @@ list(
   ),
   tar_target(
       name = no2_continuous_tbl,
-      command = pmap_dfr(no2_envista_meta_tbl, get.no2.continuous.tbl)
+      command = make.no2.continuous.tbl(no2_envista_meta_tbl,
+                                        get.no2.continuous.tbl)
   ),
 
   tar_target(
@@ -162,19 +163,7 @@ list(
                                         annual_contin_summary_tbl,
                                         monthly_contin_tbl)
   ),
-  tar_target(
-      name = disconnect_access,
-      command = dbDisconnect(connect_access)
-  ),
-  tar_target(
-      name = disconnect_envista,
-      command = dbDisconnect(connect_envista)
-  ),
-  # tar_target(
-  #     name = is_annual,
-  #     command = is.annual(datestart, dateend)
-  # ),
-  tar_target(
+   tar_target(
       name = write_period_dt_report,
       command = if(!is_annual){write.output.report.csv(
           dt_period_report_tbl,
