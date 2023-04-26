@@ -102,7 +102,7 @@ list(
   ),
   tar_target(
       name = dt_annual_datacap_tbl,
-      command = make.dt.annual.datacap.tbl(raw_tubes_tbl, aqms_tbl, year_meas)
+      command = make.dt.annual.datacap.tbl(raw_tubes_tbl, aqms_tbl, datestart)
   ),
   tar_target(
       name = formatted_site_dates_tbl,
@@ -130,7 +130,10 @@ list(
   ),
   tar_target(
       name = all_sites_labelled_tbl,
-      command = make.all.sites.labelled(all_sites_tbl)
+      command = make.all.sites.labelled(all_sites_tbl,
+                                        make.anualisation.text,
+                                        annsites,
+                                        annual_tubes)
   ),
   tar_target(
       name = dt_period_report_tbl,

@@ -10,7 +10,8 @@ packages = c( "tidyverse",
               "odbc",
               "sf",
               "readxl",
-              "config")
+              "config",
+              "openair")
 
 pacman::p_load(char = packages)
 
@@ -90,14 +91,17 @@ empty_report_dt_tbl <- make.empty.report.tbl(names_labels_dt_list)
 # assemble reports ----
 
 all_sites_tbl <- make.all.sites.tbl(aqms_tbl,
-                                    site_lat_long_tbl,
+                                    site_lat_lon_tbl,
                                     roads_aqms_sf,
                                     pcm_aqms_sf,
                                     junctions_aqms_sf)
 
 
 
-all_sites_labelled_tbl <- make.all.sites.labelled(all_sites_tbl)
+all_sites_labelled_tbl <- make.all.sites.labelled(all_sites_tbl,
+                                                  make.anualisation.text,
+                                                  annsites,
+                                                  annual_tubes)
 
 # this is the quarterly diffusion tube report
 # use cumulative data, i.e. start date should always be YYYY-01-01
@@ -106,7 +110,7 @@ dt_period_report_tbl  <- make.dt.period.report.tbl(all_sites_labelled_tbl,
                                                    formatted_site_dates_tbl,
                                                    month_tubes_tbl)
 
-dt_annual_datacap_tbl <- make.dt.annual.datacap.tbl(raw_tubes_tbl, year)
+dt_annual_datacap_tbl <- make.dt.annual.datacap.tbl(raw_tubes_tbl, aqms_tbl, datestart)
 
 dt_annual_report_tbl <- make.dt.annual.report.tbl(dt_period_report_tbl,
                                                   annual_dt_tbl,

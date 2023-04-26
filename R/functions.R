@@ -268,7 +268,9 @@ pivot.tubes.month <- function(raw_tubes_tbl) {
         return()
 }
 
-make.dt.annual.datacap.tbl <- function(raw_tubes_tbl, aqms_tbl, year_meas){
+make.dt.annual.datacap.tbl <- function(raw_tubes_tbl, aqms_tbl, datestart){
+    
+    year_meas <- year(datestart)
     
     if(leap_year(year_meas)) daysinyear <-  366 else daysinyear <-  365
     
@@ -366,7 +368,37 @@ make.all.sites.tbl <- function(aqms_tbl,
     return(all_sites_tbl)
 }
 
-make.all.sites.labelled <- function(all_sites_tbl){
+make.anualisation.text <- function(annsites =  c("BORN", "BRS8", "SWHO"), startdate){
+meas_year <- year(startdate)
+sites <- openair::importMeta(all = TRUE, year = meas_year) %>% 
+    filter(code %in% annsites,
+           variable == "NO2") %>% 
+    st_as_sf(coords = c("latitude", "longitude"), crs = 4326)
+# location of bristol city centre
+lat <- rep(51.44931, nrow(sites))
+lon <- rep(-2.59544, nrow(sites))
+
+bris_centre <- tibble(lat, lon) %>% 
+    st_as_sf(coords = c("lat", "lon"), crs = 4326)
+
+sitedist <- st_distance(sites,
+                        bris_centre,
+                        by_element = TRUE) %>% 
+    as.integer()
+
+paste(
+    paste(annsites, collapse = "|"),
+    paste(sitedist, collapse = "|"),
+    "metres",
+    collapse = "--"
+    
+)
+}
+
+make.all.sites.labelled <- function(all_sites_tbl,
+                                    make.anualisation.text,
+                                    annsites,
+                                    annual_tubes){
     
     all_sites_tbl %>%
         transmute(
@@ -393,7 +425,11 @@ make.all.sites.labelled <- function(all_sites_tbl){
             distance_from_kerbside_m = tube_kerb,
             measurements_representative_of_air_quality_for_a_street_segment_100_m_in_length_y_n = "N",
             annual_data_capture_percent = NA_real_,
-            annulisation_site_details_continuous_analyser_name_type_of_monitor_and_approximate_distance_from_the_location_centre = NA_character_,
+            annualisation_site_details_continuous_analyser_name_type_of_monitor_and_approximate_distance_from_the_location_centre = if_else(
+                site_id %in% annual_tubes,
+                make.anualisation.text(),
+                NA_character_
+            ),
             sampling_method = "Passive adsorbent",
             measurement_method = "Chemiluminescent",
             sampling_time_unit = "month",
